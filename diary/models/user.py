@@ -1,7 +1,5 @@
-import uuid,random
-from flask_marshmallow import fields
-from diary import db, ma
-from diary.validators import set_attributes
+from marshmallow import Schema, fields, post_load
+from diary import db
 
 
 class User(db.Model):
@@ -12,25 +10,21 @@ class User(db.Model):
 
     def __repr__(self):
         return f"User('{self.id}','{self.username}','{self.email}')"
-    
-    def __init__(self,**kwargs):
-        super().__init__()
-        self.id = random.randint(1,100)
-        set_attributes(self,**kwargs)
-    
-    def user_json(self):
-        return {
-            "id": self.id,
-            "username": self.username,
-            "email": self.email,
-            "password": self.password
-        } 
-
-    allowed_keys = {'username','email','password'}
 
 
-class UserSchema(ma.SQLAlchemyAutoSchema):
+class UserSchema(Schema):
     class Meta:
         model = User
 
-    # username = fields.Str(required=True)
+    username = fields.Str(required=True)
+    email = fields.Str(required=True)
+    password = fields.Str(required=True)
+
+    """ @post_load decorator deserialize to an object.
+        Here make_user() is automatically called
+        when instance of this schema is created.
+        eg: user = UserSchema().load()
+    """
+    @post_load
+    def make_user(self, data, **kwargs):
+        return User(**data)

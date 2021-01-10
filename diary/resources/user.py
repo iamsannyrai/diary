@@ -1,16 +1,15 @@
-from flask import json
-from flask_restful import Resource, request
+from flask_restful import Resource
 from diary.models.user import User, UserSchema
-from diary import db
 
-users_schema = UserSchema(many=True)
+
+all_user_schema = UserSchema(many=True)
 user_schema = UserSchema()
 
 
 class UserResource(Resource):
     def get(self):
-        users = User.query.all()
-        return users_schema.dump(users)
+        all_users = User.query.all()
+        return all_user_schema.dump(all_users)
 
 
 class SingleUserResource(Resource):
