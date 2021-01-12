@@ -17,10 +17,11 @@ class LoginResource(Resource):
                 is_correct = bcrypt.check_password_hash(user.password, credential['password'])
                 if is_correct:
                     access_token = create_access_token(identity=credential)
-                    return {"username": user.username, "email": user.email}, 200, {'Authorization': access_token,
-                                                                                   'Access-Token': access_token,
-                                                                                   'Refresh-Token': access_token,
-                                                                                   'Access-Control-Allow-Origin': '*'}
+                    custom_headers = {'Authorization': access_token,
+                                      'Access-Token': access_token,
+                                      'Refresh-Token': access_token,
+                                      'Access-Control-Allow-Origin': '*'}
+                    return {"username": user.username, "email": user.email}, 200, custom_headers
                 else:
                     return {"message": "Invalid Credential"}, 400
             else:
