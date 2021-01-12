@@ -1,33 +1,21 @@
 import uuid
-from marshmallow import Schema, fields, post_load
-from diary import db, bcrypt
+from diary import db
 
 
 class User(db.Model):
     id = db.Column(db.String(), primary_key=True, default=uuid.uuid4().hex)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
 
     def __repr__(self):
         return f"User('{self.id}','{self.username}','{self.email}')"
 
+    @classmethod
+    def find_user_by_email(cls, email):
+        return User.query.filter(User.email == email).first()
 
-class UserSchema(Schema):
-    class Meta:
-        model = User
+    @classmethod
+    def find_user_by_id(cls, user_id):
+        return User.query.filter(User.id == user_id).first()
 
-    username = fields.Str(required=True)
-    email = fields.Str(required=True)
-    password = fields.Str(required=True)
-
-    """ @post_load decorator deserialize to an object.
-        Here make_user() is automatically called
-        when instance of this schema is created.
-        eg: user = UserSchema().load()
-    """
-
-    @post_load
-    def make_user(self, data, **kwargs):
-        data['password'] = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-        return User(**data)

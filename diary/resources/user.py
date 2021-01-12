@@ -1,9 +1,10 @@
 from flask_restful import Resource
-from diary.models.user import User, UserSchema
+from diary.models.user import User
+from diary.schemas.user_schema import UserSchema
 
 
-users_schema = UserSchema(many=True)
-user_schema = UserSchema()
+users_schema = UserSchema(many=True, only=('username', 'email'))
+user_schema = UserSchema(only=('username', 'email'))
 
 
 class UserResource(Resource):
@@ -14,5 +15,5 @@ class UserResource(Resource):
 
 class SingleUserResource(Resource):
     def get(self, user_id):
-        user = User.query.filter_by(id=user_id).first()
+        user = User.find_user_by_id(user_id)
         return user_schema.dump(user)

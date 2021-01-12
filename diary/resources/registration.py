@@ -1,6 +1,6 @@
 from flask_restful import Resource, request
 from marshmallow import ValidationError
-from diary.models.user import UserSchema
+from diary.schemas.user_schema import UserSchema
 from diary import db
 
 
