@@ -1,15 +1,19 @@
+import uuid
 from marshmallow import Schema, fields, post_load
-from diary import db
+from diary import db, bcrypt
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(), primary_key=True, default=str(uuid.uuid4().hex))
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
 
     def __repr__(self):
         return f"User('{self.id}','{self.username}','{self.email}')"
+
+
+user_only_attributes = ('username', 'email')
 
 
 class UserSchema(Schema):
@@ -25,6 +29,8 @@ class UserSchema(Schema):
         when instance of this schema is created.
         eg: user = UserSchema().load()
     """
+
     @post_load
     def make_user(self, data, **kwargs):
+        data['password'] = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         return User(**data)
