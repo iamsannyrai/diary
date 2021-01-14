@@ -3,3 +3,6 @@
 
 # folders
 env/
+
+# files
+config.py
