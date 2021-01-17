@@ -65,3 +65,50 @@ class SingleNoteResource(Resource):
                        'status': 401,
                        'message': 'Invalid token'
                    }, 401
+
+    def patch(self, note_id):
+        decoded = JWTUtils.decode(request.headers['Authorization'])
+        if decoded is not None:
+            note = note_schema.load(request.json)
+            db_note = Note.find_note_by_id(note_id)
+            if db_note is not None:
+                print(f'before {db_note.title}')
+                db_note.title = note.title
+                db_note.note = note.note
+                db_note.user_id = note.user_id
+                print(f'after {db_note.title}')
+                db.session.add(db_note)
+                db.session.commit()
+                return note_schema.dump(db_note)
+            else:
+                return {
+                           'status': 404,
+                           'message': 'Note not found'
+                       }, 400
+        else:
+            return {
+                       'status': 401,
+                       'message': 'Invalid token'
+                   }, 401
+
+    def delete(self, note_id):
+        decoded = JWTUtils.decode(request.headers['Authorization'])
+        if decoded is not None:
+            db_note = Note.find_note_by_id(note_id)
+            if db_note is not None:
+                db.session.delete(db_note)
+                db.session.commit()
+                return {
+                    'status': 200,
+                    'message': 'Note deleted successfully'
+                }
+            else:
+                return {
+                           'status': 404,
+                           'message': 'Note not found'
+                       }, 400
+        else:
+            return {
+                       'status': 401,
+                       'message': 'Invalid token'
+                   }, 401
