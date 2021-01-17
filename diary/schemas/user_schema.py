@@ -7,6 +7,7 @@ class UserSchema(Schema):
     class Meta:
         model = User
 
+    id = fields.Str()
     username = fields.Str(required=True)
     email = fields.Str(required=True)
     password = fields.Str(required=True)
@@ -21,3 +22,12 @@ class UserSchema(Schema):
     def make_user(self, data, **kwargs):
         data['password'] = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         return User(**data)
+
+
+class UserSchemaFromDb(Schema):
+    class Meta:
+        model = User
+    id = fields.Str()
+    username = fields.Str()
+    email = fields.Str()
+
